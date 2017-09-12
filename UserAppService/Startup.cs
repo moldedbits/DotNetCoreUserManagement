@@ -20,13 +20,28 @@ namespace UserAppService
             Configuration = configuration;
         }
 
+        public Startup(IHostingEnvironment env)
+        {
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(env.ContentRootPath)
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddEnvironmentVariables();
+
+            if (env.IsDevelopment())
+            {
+                builder.AddUserSecrets<Startup>();
+            }
+
+            Configuration = builder.Build();
+        }
+
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(Configuration.GetConnectionString("AppSettings:DefaultConnection")));
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -45,7 +60,8 @@ namespace UserAppService
             services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
 
             // *If* you need access to generic IConfiguration this is **required**
-            services.AddSingleton<IConfiguration>(Configuration);
+            services.AddSingleton(Configuration);
+
             services.AddHttpContextAccessor();
 
             ConfigureJsonFormatter.SetJsonFormatterSerializerSettings(services);
@@ -76,6 +92,20 @@ namespace UserAppService
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            var FacebookAppId = Configuration[$"{Configuration["AppSetting:FacebookAppIdConfigName"]}"];
+            var FacebookAppSecret = Configuration[$"{Configuration["AppSetting:FacebookAppSecretConfigName"]}"];
+
+            if (FacebookAppId != null && FacebookAppSecret != null)
+            {
+                //app.UseFacebookAuthentication(new FacebookOptions()
+                //{
+                //    AppId = FacebookAppId,
+                //    AppSecret = FacebookAppSecret
+                //});
+            }
+
+            app.UseMvcWithDefaultRoute();
         }
     }
 }

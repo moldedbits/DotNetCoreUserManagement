@@ -7,5 +7,6 @@ namespace UserAppService.Settings
 {
     public class AppSettings
     {
+        public string ApplicationName { get; set; }
     }
 }
