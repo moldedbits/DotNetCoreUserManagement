@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using UserAppService.Data;
 using UserAppService.Models;
 using UserAppService.Services;
 using System.Web;
@@ -12,6 +11,11 @@ using UserAppService.Configuration;
 using UserAppService.Settings;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using UserAppService.Context;
 
 namespace UserAppService
 {
@@ -39,6 +43,9 @@ namespace UserAppService
 
         public IConfiguration Configuration { get; }
 
+        private const string SecretKey = "needtogetthisfromenvironment";
+        private readonly SymmetricSecurityKey _signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(SecretKey));
+
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
@@ -46,7 +53,7 @@ namespace UserAppService
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(connectionString));
 
-            services.AddIdentity<ApplicationUser, IdentityRole>()
+            services.AddIdentity<User, ApplicationRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
@@ -65,6 +72,28 @@ namespace UserAppService
             services.AddHttpContextAccessor();
 
             ConfigureJsonFormatter.SetJsonFormatterSerializerSettings(services);
+
+            // Make authentication compulsory across the board (i.e. shut
+            // down EVERYTHING unless explicitly opened up).
+            services.AddMvc(config =>
+            {
+                var policy = new AuthorizationPolicyBuilder()
+                                 .RequireAuthenticatedUser()
+                                 .Build();
+                config.Filters.Add(new AuthorizeFilter(policy));
+            });
+
+            // Get options from app settings
+            var jwtAppSettingOptions = Configuration.GetSection(nameof(JwtIssuerOptions));
+
+            // Configure JwtIssuerOptions
+            services.Configure<JwtIssuerOptions>(options =>
+            {
+                options.Issuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
+                options.Audience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)];
+                options.SigningCredentials = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256);
+            });
+
             IntegrateSimpleInjector(services);
         }
 
