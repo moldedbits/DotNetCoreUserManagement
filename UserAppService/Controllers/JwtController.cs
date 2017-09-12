@@ -12,6 +12,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace UserAppService.Controllers
 {
@@ -19,15 +20,25 @@ namespace UserAppService.Controllers
     [Route("api/[controller]")]
     public class JwtController : Controller
     {
+        private UserManager<User> _userManager;
+        private SignInManager<User> _signInManager;
+        private IPasswordHasher<User> _passwordHasher;
+
         private readonly JwtIssuerOptions _jwtOptions;
         private readonly ILogger _logger;
         private readonly JsonSerializerSettings _serializerSettings;
 
-        public JwtController(IOptions<JwtIssuerOptions> jwtOptions, ILoggerFactory loggerFactory)
+        public JwtController(IOptions<JwtIssuerOptions> jwtOptions,
+            ILoggerFactory loggerFactory,
+            UserManager<User> userManager,
+            IPasswordHasher<User> passwordHasher,
+            SignInManager<User> signInManager)
         {
             _jwtOptions = jwtOptions.Value;
             ThrowIfInvalidOptions(_jwtOptions);
-
+            _userManager = userManager;
+            _signInManager = signInManager;
+            _passwordHasher = passwordHasher;
             _logger = loggerFactory.CreateLogger<JwtController>();
 
             _serializerSettings = new JsonSerializerSettings
@@ -49,13 +60,13 @@ namespace UserAppService.Controllers
 
             var claims = new[]
             {
-        new Claim(JwtRegisteredClaimNames.Sub, applicationUser.UserName),
-        new Claim(JwtRegisteredClaimNames.Jti, await _jwtOptions.JtiGenerator()),
-        new Claim(JwtRegisteredClaimNames.Iat,
-                  ToUnixEpochDate(_jwtOptions.IssuedAt).ToString(),
-                  ClaimValueTypes.Integer64),
-        identity.FindFirst("DisneyCharacter")
-      };
+                new Claim(JwtRegisteredClaimNames.Sub, applicationUser.UserName),
+                new Claim(JwtRegisteredClaimNames.Jti, await _jwtOptions.JtiGenerator()),
+                new Claim(JwtRegisteredClaimNames.Iat,
+                          ToUnixEpochDate(_jwtOptions.IssuedAt).ToString(),
+                          ClaimValueTypes.Integer64),
+                identity.FindFirst("DisneyCharacter")
+            };
 
             // Create the JWT security token and encode it.
             var jwt = new JwtSecurityToken(
