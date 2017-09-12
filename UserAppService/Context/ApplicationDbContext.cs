@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Builder;
 
 namespace UserAppService.Context
 {
@@ -21,7 +22,7 @@ namespace UserAppService.Context
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
-            this.Database.Migrate();
+            //this.Database.Migrate();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -103,5 +104,25 @@ namespace UserAppService.Context
         //    }
         //}
 
+    }
+
+    public static class DbContextExtensions
+    {
+        public static void Seed(this ApplicationDbContext db)
+        {
+            Configuration.Seed(db); // <= WARNING HERE
+        }
+    }
+
+    public static class DbContextSeedData
+    {
+        public static void Seed(IApplicationBuilder app)
+        {
+            using (var context = app.ApplicationServices.GetRequiredService<ApplicationDbContext>())
+            {
+                Configuration.Seed(context); 
+            }
+            
+        }
     }
 }

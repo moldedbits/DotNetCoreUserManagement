@@ -8,7 +8,8 @@ namespace UserAppService.Context
 {
     public class Configuration
     {
-        public static void Seed(ApplicationDbContext context)
+
+        public async static void Seed(ApplicationDbContext context)
         {
 
             var seedStart = DateTime.UtcNow;
@@ -21,32 +22,33 @@ namespace UserAppService.Context
                      INSERT INTO [dbo].[User] ([Id], [CreatedOn], [UpdatedOn], [UpdatedById], [CreatedById], [UserName], [EmailConfirmed], [PhoneNumberConfirmed], [LockoutEnabled], [AccessFailedCount], [TwoFactorEnabled]) Values(-1, @dateTime, @dateTime,-1,-1, 'SuperAdmin', 0, 0, 0, 0, 0);
                      SET IDENTITY_INSERT [dbo].[User] OFF;", dateTime);
             }
+            context.SaveChanges();
 
             var defaultUser = context.Users.FirstOrDefault(x => x.Id == 1);
 
             if (defaultUser.IsNull())
             {
-                context.Users.AddAsync(SeedDataBuilder.BuildDefaultUser());
+                await context.Users.AddAsync(SeedDataBuilder.BuildDefaultUser());
                 context.SaveChanges();
             }
 
             if (context.Roles.IsNull() || !context.Roles.Any())
             {
-                context.Roles.AddRangeAsync(SeedDataBuilder.BuildApplicationRole().ToArray());
+                await context.Roles.AddRangeAsync(SeedDataBuilder.BuildApplicationRole().ToArray());
                 context.SaveChanges();
             }
 
             // Add default user roles mapping
             if (context.UserRole.IsNull() || !context.UserRole.Any())
             {
-                context.UserRole.AddRangeAsync(SeedDataBuilder.BuildDefaultUserRole().ToArray());
+                await context.UserRole.AddRangeAsync(SeedDataBuilder.BuildDefaultUserRole().ToArray());
                 context.SaveChanges();
             }
 
             // Add platforms data
             if (context.Platform.IsNull() || !context.Platform.Any())
             {
-                context.Platform.AddRangeAsync(SeedDataBuilder.BuildPlatform().ToArray());
+                await context.Platform.AddRangeAsync(SeedDataBuilder.BuildPlatform().ToArray());
                 context.SaveChanges();
             }
         }

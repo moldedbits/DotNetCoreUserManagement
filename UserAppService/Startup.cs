@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using UserAppService.Context;
+using System;
 
 namespace UserAppService
 {
@@ -47,11 +48,12 @@ namespace UserAppService
         private readonly SymmetricSecurityKey _signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(SecretKey));
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+        public IServiceProvider ConfigureServices(IServiceCollection services)
         {
-            var connectionString = Configuration["AppSettings:ConnectionStrings:DefaultConnection"];
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(connectionString));
+            //var connectionString = Configuration["AppSettings:ConnectionStrings:DefaultConnection"];
+            //services.AddDbContext<ApplicationDbContext>(options =>
+            //    options.UseSqlServer(connectionString));
+          
 
             services.AddIdentity<User, ApplicationRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -95,6 +97,8 @@ namespace UserAppService
             });
 
             IntegrateSimpleInjector(services);
+
+            return services.BuildServiceProvider(false);
         }
 
         public void IntegrateSimpleInjector(IServiceCollection services)
@@ -117,6 +121,8 @@ namespace UserAppService
             {
                 app.UseExceptionHandler("/Home/Error");
             }
+
+            //app.ApplicationServices.GetRequiredService<ApplicationDbContext>().Seed();
 
             app.UseStaticFiles();
 
@@ -143,6 +149,8 @@ namespace UserAppService
             }
 
             app.UseMvcWithDefaultRoute();
+
+            DbContextSeedData.Seed(app);
         }
     }
 }
