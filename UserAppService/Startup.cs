@@ -10,6 +10,8 @@ using UserAppService.Services;
 using System.Web;
 using UserAppService.Configuration;
 using UserAppService.Settings;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Controllers;
 
 namespace UserAppService
 {
@@ -40,8 +42,9 @@ namespace UserAppService
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var connectionString = Configuration["AppSettings:ConnectionStrings:DefaultConnection"];
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("AppSettings:DefaultConnection")));
+                options.UseSqlServer(connectionString));
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -59,12 +62,17 @@ namespace UserAppService
             // Add our Config object so it can be injected
             services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
 
-            // *If* you need access to generic IConfiguration this is **required**
-            services.AddSingleton(Configuration);
-
             services.AddHttpContextAccessor();
 
             ConfigureJsonFormatter.SetJsonFormatterSerializerSettings(services);
+            IntegrateSimpleInjector(services);
+        }
+
+        public void IntegrateSimpleInjector(IServiceCollection services)
+        {
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            // *If* you need access to generic IConfiguration this is **required**
+            services.AddSingleton(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
