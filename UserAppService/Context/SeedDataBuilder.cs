@@ -36,7 +36,7 @@ namespace UserAppService.Context
                 PasswordHash = "AP02ZhtwHR99UNTAbsjkm5eBIBrWcku0xDgx1lP5w428nzDLuzH5XJtJCDaVvTOlcA==",
                 Email = "ABC@gmail.com",
                 SecurityStamp = "9a2bf52a - ef66 - 47c4 - 9eeb - b944ca3d1dfb",
-                CreatedById = -1 
+                //CreatedById = -1 
             };
         }
 
