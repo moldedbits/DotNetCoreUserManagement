@@ -2,9 +2,9 @@
 
 namespace UserAppService.Models
 {
-    public class UserLogin : IdentityUserLogin<int>
+    public class RoleClaim : IdentityRoleClaim<int>
     {
-        public UserLogin()
+        public RoleClaim()
             : base()
         { }
     }

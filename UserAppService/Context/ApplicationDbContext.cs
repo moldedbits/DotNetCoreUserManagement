@@ -17,7 +17,7 @@ using Microsoft.AspNetCore.Builder;
 
 namespace UserAppService.Context
 {
-    public class ApplicationDbContext : IdentityDbContext<User,ApplicationRole,int>
+    public class ApplicationDbContext : IdentityDbContext<User,ApplicationRole,int,UserClaim,UserRole,UserLogin, RoleClaim,UserToken>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -41,9 +41,9 @@ namespace UserAppService.Context
             modelBuilder.Entity<UserLogin>().ToTable("UserLogin");
             modelBuilder.Entity<UserClaim>().ToTable("UserClaim");
             modelBuilder.Entity<ApplicationRole>().ToTable("ApplicationRole");
-            modelBuilder.Entity<User>().HasMany((User u) => u.UserRoles);
             modelBuilder.Entity<UserRole>().ToTable("UserRole");
-            modelBuilder.Entity<Platform>().ToTable("Platform");
+            modelBuilder.Entity<RoleClaim>().ToTable("RoleClaim");
+            modelBuilder.Entity<UserToken>().ToTable("UserToken");
 
             // Manage foreign key constraints (meta-data tagging)
             ////modelBuilder.Entity<ApplicationRole>().HasRequired(x => x.CreatedBy).WithMany().HasForeignKey(x => x.CreatedById).WillCascadeOnDelete(false);
@@ -56,8 +56,6 @@ namespace UserAppService.Context
             ////modelBuilder.Entity<UserRole>().HasRequired(x => x.UpdatedBy).WithMany().HasForeignKey(x => x.UpdatedById).WillCascadeOnDelete(false);
 
         }
-
-        public DbSet<Platform> Platform { get; set; }
 
         public DbSet<UserRole> UserRole { get; set; }
 

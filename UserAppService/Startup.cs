@@ -10,7 +10,6 @@ using System.Web;
 using UserAppService.Configuration;
 using UserAppService.Settings;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.IdentityModel.Tokens;
@@ -22,13 +21,13 @@ namespace UserAppService
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
+       
+        private string _contentRootPath = "";
 
         public Startup(IHostingEnvironment env)
         {
+            _contentRootPath = env.ContentRootPath;
+
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
@@ -50,17 +49,18 @@ namespace UserAppService
         // This method gets called by the runtime. Use this method to add services to the container.
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
-            //var connectionString = Configuration["AppSettings:ConnectionStrings:DefaultConnection"];
-            //services.AddDbContext<ApplicationDbContext>(options =>
-            //    options.UseSqlServer(connectionString));
-          
-
             services.AddIdentity<User, ApplicationRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
-            services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlServer("Data Source=DESKTOP-5DLFS28;AttachDbFilename=|DataDirectory|UserManagement.mdf;Integrated Security=True;User Instance=True"));
+            string connectionString = Configuration["AppSettings:ConnectionStrings:DefaultConnection"];
+
+            if (connectionString.Contains("%CONTENTROOTPATH%"))
+            {
+                connectionString = connectionString.Replace("%CONTENTROOTPATH%", _contentRootPath);
+            }
+
+            services.AddDbContext<ApplicationDbContext>(options =>options.UseSqlServer(connectionString));
 
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();
@@ -147,6 +147,8 @@ namespace UserAppService
                 //    AppSecret = FacebookAppSecret
                 //});
             }
+
+            app.UseIdentity();
 
             app.UseMvcWithDefaultRoute();
 

@@ -2,9 +2,9 @@
 
 namespace UserAppService.Models
 {
-    public class UserLogin : IdentityUserLogin<int>
+    public class UserToken : IdentityUserToken<int>//, IEntity
     {
-        public UserLogin()
+        public UserToken()
             : base()
         { }
     }

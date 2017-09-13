@@ -11,19 +11,25 @@ namespace UserAppService.Context
 
         public async static void Seed(ApplicationDbContext context)
         {
+            context.Database.EnsureCreated();
 
             var seedStart = DateTime.UtcNow;
 
-            if (context.Users.FirstOrDefault(x => x.Id == -1) == null)
-            {
-                var dateTime = new SqlParameter("@dateTime", seedStart);
-                context.Database.ExecuteSqlCommand(@"
-                     SET IDENTITY_INSERT [dbo].[User] ON;
-                     INSERT INTO [dbo].[User] ([Id], [CreatedOn], [UpdatedOn], [UpdatedById], [CreatedById], [UserName], [EmailConfirmed], [PhoneNumberConfirmed], [LockoutEnabled], [AccessFailedCount], [TwoFactorEnabled]) Values(-1, @dateTime, @dateTime,-1,-1, 'SuperAdmin', 0, 0, 0, 0, 0);
-                     SET IDENTITY_INSERT [dbo].[User] OFF;", dateTime);
-            }
-            context.SaveChanges();
-
+            //if (context.Users.FirstOrDefault(x => x.Id == -1) == null)
+            //{
+            //    var dateTime = new SqlParameter("@dateTime", seedStart);
+            //    //context.Database.ExecuteSqlCommand(@"
+            //    //     SET IDENTITY_INSERT [dbo].[User] ON;
+            //    //     INSERT INTO [dbo].[User] ([Id], [CreatedOn], [UpdatedOn], [UpdatedById], [CreatedById], [UserName], [EmailConfirmed], [PhoneNumberConfirmed], [LockoutEnabled], [AccessFailedCount], [TwoFactorEnabled]) Values(-1, @dateTime, @dateTime,-1,-1, 'SuperAdmin', 0, 0, 0, 0, 0);
+            //    //     SET IDENTITY_INSERT [dbo].[User] OFF;", dateTime);
+            //    context.Database.ExecuteSqlCommand(@"
+            //         SET IDENTITY_INSERT [dbo].[User] ON;
+            //         INSERT INTO [dbo].[User] ([Id],[UserName], [EmailConfirmed], [PhoneNumberConfirmed], [LockoutEnabled], [AccessFailedCount], [TwoFactorEnabled]) Values(-1, 'SuperAdmin', 0, 0, 0, 0, 0);
+            //         SET IDENTITY_INSERT [dbo].[User] OFF;");
+            //}
+            //context.SaveChanges();
+            //context.Database.ExecuteSqlCommand(@"SET IDENTITY_INSERT [dbo].[User] ON;");
+            //context.SaveChanges();
             var defaultUser = context.Users.FirstOrDefault(x => x.Id == 1);
 
             if (defaultUser.IsNull())
@@ -38,19 +44,15 @@ namespace UserAppService.Context
                 context.SaveChanges();
             }
 
-            // Add default user roles mapping
-            if (context.UserRole.IsNull() || !context.UserRole.Any())
-            {
-                await context.UserRole.AddRangeAsync(SeedDataBuilder.BuildDefaultUserRole().ToArray());
-                context.SaveChanges();
-            }
+            //// Add default user roles mapping
+            //if (context.UserRole.IsNull() || !context.UserRole.Any())
+            //{
+            //    await context.UserRole.AddRangeAsync(SeedDataBuilder.BuildDefaultUserRole().ToArray());
+            //    context.SaveChanges();
+            //}
 
-            // Add platforms data
-            if (context.Platform.IsNull() || !context.Platform.Any())
-            {
-                await context.Platform.AddRangeAsync(SeedDataBuilder.BuildPlatform().ToArray());
-                context.SaveChanges();
-            }
+            //context.Database.ExecuteSqlCommand(@"SET IDENTITY_INSERT [dbo].[User] OFF;");
+            //context.SaveChanges();
         }
     }
 }

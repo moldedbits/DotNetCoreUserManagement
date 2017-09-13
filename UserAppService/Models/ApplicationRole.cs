@@ -11,7 +11,7 @@ namespace UserAppService.Models
 
     };
 
-    public class ApplicationRole : IdentityRole<int>, IEntity
+    public class ApplicationRole : IdentityRole<int>//, IEntity
     {
         public ApplicationRole() : base() { }
 
@@ -23,17 +23,5 @@ namespace UserAppService.Models
             Name = name;
             Description = description;
         }
-
-        public int UpdatedById { get; set; }
-
-        public DateTime UpdatedOn { get; set; }
-
-        public int CreatedById { get; set; }
-
-        public DateTime? CreatedOn { get; set; }
-
-        public virtual User UpdatedBy { get; set; }
-
-        public virtual User CreatedBy { get; set; }
     }
 }
