@@ -3,3 +3,5 @@
 ################################################################################
 
 /UserAppService/obj/Debug/netcoreapp2.0
+/UserAppService/bin/Debug/netcoreapp2.0
+/UserAppService/obj

@@ -121,25 +121,24 @@ namespace UserAppService.Controllers
         /// You'd want to retrieve claims through your claims provider
         /// in whatever way suits you, the below is purely for demo purposes!
         /// </summary>
-        private static Task<ClaimsIdentity> GetClaimsIdentity(UserInputModel user)
+        private Task<ClaimsIdentity> GetClaimsIdentity(UserInputModel user)
         {
-            if (user.UserName == "MickeyMouse" &&
-                user.Password == "MickeyMouseIsBoss123")
-            {
-                return Task.FromResult(new ClaimsIdentity(
-                  new GenericIdentity(user.UserName, "Token"),
-                  new[]
-                  {
-            new Claim("DisneyCharacter", "IAmMickey")
-                  }));
-            }
+            var u = _userManager.Users.Where(x => x.UserName == user.UserName).SingleOrDefault();
 
-            if (user.UserName == "NotMickeyMouse" &&
-                user.Password == "MickeyMouseIsBoss123")
+            if (u != null)
             {
-                return Task.FromResult(new ClaimsIdentity(
-                  new GenericIdentity(user.UserName, "Token"),
-                  new Claim[] { }));
+                if (_userManager.CheckPasswordAsync(u, user.Password).Result)
+                {
+
+                    return Task.FromResult(new ClaimsIdentity(
+                      new GenericIdentity(user.UserName, "Token"),
+                      new[]
+                      {
+                        new Claim(ClaimTypes.NameIdentifier, u.Id.ToString()),
+                        new Claim(ClaimTypes.Name, u.UserName.ToString())
+
+                      }));
+                }
             }
 
             // Credentials are invalid, or account doesn't exist

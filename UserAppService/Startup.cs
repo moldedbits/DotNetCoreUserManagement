@@ -21,7 +21,6 @@ namespace UserAppService
 {
     public class Startup
     {
-       
         private string _contentRootPath = "";
 
         public Startup(IHostingEnvironment env)
@@ -148,7 +147,7 @@ namespace UserAppService
                 //});
             }
 
-            app.UseIdentity();
+            app.UseAuthentication();
 
             app.UseMvcWithDefaultRoute();
 

@@ -1,18 +1,8 @@
 ﻿using UserAppService.Models;
 using System;
-using System.Data.Common;
-using System.Collections.Generic;
-using System.Linq;
-using UserAppService.Interfaces;
-using System.Threading;
-using System.Text;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 
 namespace UserAppService.Context
@@ -44,17 +34,6 @@ namespace UserAppService.Context
             modelBuilder.Entity<UserRole>().ToTable("UserRole");
             modelBuilder.Entity<RoleClaim>().ToTable("RoleClaim");
             modelBuilder.Entity<UserToken>().ToTable("UserToken");
-
-            // Manage foreign key constraints (meta-data tagging)
-            ////modelBuilder.Entity<ApplicationRole>().HasRequired(x => x.CreatedBy).WithMany().HasForeignKey(x => x.CreatedById).WillCascadeOnDelete(false);
-            ////modelBuilder.Entity<ApplicationRole>().HasRequired(x => x.UpdatedBy).WithMany().HasForeignKey(x => x.UpdatedById).WillCascadeOnDelete(false);
-
-            ////modelBuilder.Entity<Platform>().HasRequired(x => x.CreatedBy).WithMany().HasForeignKey(x => x.CreatedById).WillCascadeOnDelete(false);
-            ////modelBuilder.Entity<Platform>().HasRequired(x => x.UpdatedBy).WithMany().HasForeignKey(x => x.UpdatedById).WillCascadeOnDelete(false);
-
-            ////modelBuilder.Entity<UserRole>().HasRequired(x => x.CreatedBy).WithMany().HasForeignKey(x => x.CreatedById).WillCascadeOnDelete(false);
-            ////modelBuilder.Entity<UserRole>().HasRequired(x => x.UpdatedBy).WithMany().HasForeignKey(x => x.UpdatedById).WillCascadeOnDelete(false);
-
         }
 
         public DbSet<UserRole> UserRole { get; set; }
