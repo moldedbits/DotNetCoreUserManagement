@@ -62,10 +62,8 @@ namespace UserAppService.Controllers
             {
                 new Claim(JwtRegisteredClaimNames.Sub, applicationUser.UserName),
                 new Claim(JwtRegisteredClaimNames.Jti, await _jwtOptions.JtiGenerator()),
-                new Claim(JwtRegisteredClaimNames.Iat,
-                          ToUnixEpochDate(_jwtOptions.IssuedAt).ToString(),
-                          ClaimValueTypes.Integer64),
-                identity.FindFirst("DisneyCharacter")
+                new Claim(JwtRegisteredClaimNames.Iat,ToUnixEpochDate(_jwtOptions.IssuedAt).ToString(),
+                          ClaimValueTypes.Integer64)
             };
 
             // Create the JWT security token and encode it.
@@ -129,15 +127,7 @@ namespace UserAppService.Controllers
             {
                 if (_userManager.CheckPasswordAsync(u, user.Password).Result)
                 {
-
-                    return Task.FromResult(new ClaimsIdentity(
-                      new GenericIdentity(user.UserName, "Token"),
-                      new[]
-                      {
-                        new Claim(ClaimTypes.NameIdentifier, u.Id.ToString()),
-                        new Claim(ClaimTypes.Name, u.UserName.ToString())
-
-                      }));
+                    return Task.FromResult(new ClaimsIdentity(new System.Security.Principal.GenericIdentity(u.UserName, "Token"), new Claim[] { }));
                 }
             }
 
