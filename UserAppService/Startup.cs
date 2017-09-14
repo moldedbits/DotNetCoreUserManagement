@@ -16,6 +16,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using UserAppService.Context;
 using System;
+using UserAppService.Service;
+using Autofac;
 
 namespace UserAppService
 {
@@ -73,7 +75,8 @@ namespace UserAppService
             services.AddHttpContextAccessor();
 
             ConfigureJsonFormatter.SetJsonFormatterSerializerSettings(services);
-
+            // Add framework services.
+            services.AddMvc();
             // Make authentication compulsory across the board (i.e. shut
             // down EVERYTHING unless explicitly opened up).
             services.AddMvc(config =>
@@ -83,6 +86,9 @@ namespace UserAppService
                                  .Build();
                 config.Filters.Add(new AuthorizeFilter(policy));
             });
+
+            // Register application services.
+            services.AddScoped<IAuthService, AuthService>();
 
             // Get options from app settings
             var jwtAppSettingOptions = Configuration.GetSection(nameof(JwtIssuerOptions));
@@ -95,16 +101,12 @@ namespace UserAppService
                 options.SigningCredentials = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256);
             });
 
-            IntegrateSimpleInjector(services);
-
-            return services.BuildServiceProvider(false);
-        }
-
-        public void IntegrateSimpleInjector(IServiceCollection services)
-        {
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             // *If* you need access to generic IConfiguration this is **required**
             services.AddSingleton(Configuration);
+            // Add Autofac
+
+            return services.BuildServiceProvider(false);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
