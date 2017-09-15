@@ -1,136 +1,135 @@
-﻿//using Newtonsoft.Json;
-//using Newtonsoft.Json.Linq;
-//using System;
-//using System.Linq;
-//using System.Net;
-//using System.Net.Http;
-//using System.Threading.Tasks;
-//using System.Web;
-//using UserAppService.Context;
+﻿using Microsoft.AspNetCore.Identity;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Web;
+using UserAppService.Context;
 //using UserAppService.ExternalLogin;
-//using UserAppService.InputModel;
-//using UserAppService.Models;
-//using UserAppService.OutputModels;
+using UserAppService.InputModel;
+using UserAppService.Models;
+using UserAppService.OutputModels;
 //using UserAppService.Repositories;
 
-//namespace UserAppService.Service.UserLoginAppServiceLayer
-//{
-//    public class UserLoginService : IUserLoginService
-//    {
-//        private ApplicationUserManager _userManager;
-//        private IAuthenticationManager authenticationManager;
-//        private ApplicationSignInManager _signInManager;
-//        private readonly ApplicationDbContext _applicationDbContext;
-//        private readonly IRepository<UserLogin> _userLogin;
+namespace UserAppService.Service.UserLoginAppServiceLayer
+{
+    public class UserLoginService : IUserLoginService
+    {
+        private UserManager<User> _userManager;
+        //private IAuthenticationManager authenticationManager;
+        private SignInManager<User> _signInManager;
+        private readonly ApplicationDbContext _applicationDbContext;
+        private readonly IRepository<UserLogin> _userLogin;
 
-//        public UserLoginService(ApplicationDbContext applicationDbContext, ApplicationUserManager userManager, ApplicationSignInManager signInManager)
-//        {
-//            _applicationDbContext = applicationDbContext;
-//            _userManager = userManager;
-//            _signInManager = signInManager;
-//            _userLogin = new Repository<UserLogin>(_applicationDbContext);
-//        }
+        public UserLoginService(ApplicationDbContext applicationDbContext, UserManager<User> userManager, SignInManager<User> signInManager)
+        {
+            _applicationDbContext = applicationDbContext;
+            _userManager = userManager;
+            _signInManager = signInManager;
+            //_userLogin = new Repository<UserLogin>(_applicationDbContext);
+        }
 
-//        public HttpRequestMessage CurrentRequest
-//        {
-//            get { return (HttpRequestMessage) HttpContext.Current.Items [ "MS_HttpRequestMessage" ]; }
-//        }
+        //        public HttpRequestMessage CurrentRequest
+        //        {
+        //            get { return (HttpRequestMessage) HttpContext.Current.Items [ "MS_HttpRequestMessage" ]; }
+        //        }
 
-//        public void GetApplicationUserManager(ApplicationUserManager userManager)
-//        {
-//            _userManager = userManager;
-//        }
+        //        public void GetApplicationUserManager(ApplicationUserManager userManager)
+        //        {
+        //            _userManager = userManager;
+        //        }
 
-//        private async Task SignInAsync(User user, bool isPersistent)
-//        {
-//            AuthenticationManager.SignOut(DefaultAuthenticationTypes.ExternalCookie);
-//            AuthenticationManager.SignIn(new AuthenticationProperties() { IsPersistent = isPersistent }, await user.GenerateUserIdentityAsync(_userManager));
-//        }
+        //        private async Task SignInAsync(User user, bool isPersistent)
+        //        {
+        //            AuthenticationManager.SignOut(DefaultAuthenticationTypes.ExternalCookie);
+        //            AuthenticationManager.SignIn(new AuthenticationProperties() { IsPersistent = isPersistent }, await user.GenerateUserIdentityAsync(_userManager));
+        //        }
 
-//        public IAuthenticationManager AuthenticationManager
-//        {
-//            get
-//            {
-//                authenticationManager = HttpContext.Current.GetOwinContext().Authentication;
-//                if( authenticationManager == null )
-//                {
-//                    authenticationManager = System.Web.HttpContext.Current.GetOwinContext().Authentication;
-//                }
-//                return authenticationManager;
-//            }
-//        }
+        //        public IAuthenticationManager AuthenticationManager
+        //        {
+        //            get
+        //            {
+        //                authenticationManager = HttpContext.Current.GetOwinContext().Authentication;
+        //                if( authenticationManager == null )
+        //                {
+        //                    authenticationManager = System.Web.HttpContext.Current.GetOwinContext().Authentication;
+        //                }
+        //                return authenticationManager;
+        //            }
+        //        }
 
-//        public GoogleExternalLoginResult GoogleLogin(GoogleLoginInputModel inputModel)
-//        {
-//            var outputModel = new GoogleExternalLoginResult() { Status = "External Login Failure", AuthTokenInfo = null};
+        public GoogleExternalLoginResult GoogleLogin(GoogleLoginInputModel inputModel)
+        {
+            var outputModel = new GoogleExternalLoginResult() { Status = "External Login Failure", AuthTokenInfo = null };
 
-//            string requestUri = string.Format(ResourceFiles.LocalizedText.GoogleRequestUri, inputModel.Token);
-//            string tokenInfoMessage;
+            string requestUri = string.Format(ResourceFiles.LocalizedText.GoogleRequestUri, inputModel.Token);
+            string tokenInfoMessage;
 
-//            try
-//            {
-//                using (WebClient client = new WebClient())
-//                {
-//                    tokenInfoMessage = client.DownloadString(requestUri);
-//                }
-//                GoogleTokenInfo tokenInfo = JsonConvert.DeserializeObject<GoogleTokenInfo>(tokenInfoMessage);
+            try
+            {
+                using (WebClient client = new WebClient())
+                {
+                    tokenInfoMessage = client.DownloadString(requestUri);
+                }
+                GoogleTokenInfo tokenInfo = JsonConvert.DeserializeObject<GoogleTokenInfo>(tokenInfoMessage);
 
-//                var user = _userManager.FindByEmail(tokenInfo.Email);
+                var user = _userManager.FindByEmailAsync(tokenInfo.Email).Result;
 
-//                if( user != null )
-//                {
-//                    _signInManager.SignIn(user, isPersistent: true, rememberBrowser: true);
+                if (user != null)
+                {
+                    //_signInManager.SignInAsync(user, isPersistent: true, rememberBrowser: true);
+                    var res = _signInManager.SignInAsync(user, isPersistent: true);
 
-//                    outputModel.WasSuccessful = true;
-//                    outputModel.Status = ResourceFiles.LocalizedText.GmailLoginSuccessful;
-//                    outputModel.AuthTokenInfo = tokenInfo;
-//                }
-//                else
-//                {
-//                    // If the user does not have an account, then prompt the user to create an account
-//                    outputModel.Status = ResourceFiles.LocalizedText.UserAccountNotExists;
-//                    //return result;
-//                    if( inputModel.AutoRegister )
-//                    {
-//                        user = new User() { UserName = tokenInfo.Email, Email = tokenInfo.Email, CreatedById = -1, CreatedOn = DateTime.UtcNow, UpdatedById = -1, UpdatedOn = DateTime.UtcNow };
+                    outputModel.WasSuccessful = true;
+                    outputModel.Status = ResourceFiles.LocalizedText.GmailLoginSuccessful;
+                    outputModel.AuthTokenInfo = tokenInfo;
+                }
+                else
+                {
+                    // If the user does not have an account, then prompt the user to create an account
+                    outputModel.Status = ResourceFiles.LocalizedText.UserAccountNotExists;
+                    //return result;
+                    if (inputModel.AutoRegister)
+                    {
+                        //user = new User() { UserName = tokenInfo.Email, Email = tokenInfo.Email, CreatedById = -1, CreatedOn = DateTime.UtcNow, UpdatedById = -1, UpdatedOn = DateTime.UtcNow };
+                        user = new User() { UserName = tokenInfo.Email, Email = tokenInfo.Email };
 
-//                        var result = _userManager.Create(user);
+                        var addedUser = _userManager.CreateAsync(user).Result;
 
-//                        //Inserting data in UserLogin Table
-//                        int userId;
-//                        int.TryParse(tokenInfo.UserId, out userId);
+                        //Inserting data in UserLogin Table
+                        int userId;
+                        int.TryParse(tokenInfo.UserId, out userId);
 
-//                        var userLogin = new UserLogin()
-//                        {
-//                            LoginProvider = inputModel.Provider,
-//                            ProviderKey = inputModel.Token,
-//                            UserId = userId
-//                        };
+                        //var userLogin = new UserLoginInfo(loginProvider: inputModel.Provider, providerKey: inputModel.Token, displayName : inputModel.Provider);                        };
 
-//                        _userLogin.InsertOrUpdate(userLogin);
-//                        _userLogin.Commit();
+                        var result = _userManager.AddLoginAsync(user, new UserLoginInfo(loginProvider: inputModel.Provider, providerKey: inputModel.Token, displayName: inputModel.Provider)).Result;
+                        //_userLogin.Commit();
 
-//                        if( !result.Succeeded )
-//                        {
-//                            throw new Exception(ResourceFiles.LocalizedText.UserRegisterFail + result.Errors.First());
-//                        }
+                        if (!result.Succeeded)
+                        {
+                            throw new Exception(ResourceFiles.LocalizedText.UserRegisterFail + result.Errors.First());
+                        }
 
-//                        // TODO: needs refactoring
-//                        _signInManager.SignIn(user, isPersistent: true, rememberBrowser: true);
+                        // TODO: needs refactoring
+                        //_signInManager.SignInAsync(user, isPersistent: true, rememberBrowser: true);
+                        _signInManager.SignInAsync(user, isPersistent: true);
 
-//                        outputModel.WasSuccessful = true;
-//                        outputModel.Status = ResourceFiles.LocalizedText.GmailLoginSuccessful;
-//                        outputModel.AuthTokenInfo = tokenInfo;
-//                    }
-//                }
-//            }
-//            catch(Exception ex)
-//            {
-//                outputModel.Status = $"Invalid Token: {ex.Message}";
-//            }
+                        outputModel.WasSuccessful = true;
+                        outputModel.Status = ResourceFiles.LocalizedText.GmailLoginSuccessful;
+                        outputModel.AuthTokenInfo = tokenInfo;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                outputModel.Status = $"Invalid Token: {ex.Message}";
+            }
 
-//            return outputModel;
-//        }
+            return outputModel;
+        }
 
 //        public FacebookExternalLoginResult FacebookLogin(FacebookLoginInputModel inputModel)
 //        {
@@ -314,5 +313,5 @@
 //            //// ViewBag.ReturnUrl = returnUrl;
 //            return om;
 //        }
-//    }
-//}
+    }
+}
