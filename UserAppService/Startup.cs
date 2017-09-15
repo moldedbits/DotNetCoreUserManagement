@@ -19,6 +19,7 @@ using System;
 using UserAppService.Service;
 using Autofac;
 using Microsoft.AspNetCore.Authentication.Facebook;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.Google;
 
 namespace UserAppService
@@ -63,7 +64,7 @@ namespace UserAppService
                 connectionString = connectionString.Replace("%CONTENTROOTPATH%", _contentRootPath);
             }
 
-            services.AddDbContext<ApplicationDbContext>(options =>options.UseSqlServer(connectionString));
+            services.AddDbContext<ApplicationDbContext>(options =>options.UseSqlite(connectionString));
 
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();
@@ -96,13 +97,27 @@ namespace UserAppService
             var jwtAppSettingOptions = Configuration.GetSection(nameof(JwtIssuerOptions));
 
             // Configure JwtIssuerOptions
-            services.Configure<JwtIssuerOptions>(options =>
-            {
-                options.Issuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
-                options.Audience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)];
-                options.SigningCredentials = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256);
-            });
+            //services.Configure<JwtIssuerOptions>(options =>
+            //{
+            //    options.Issuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
+            //    options.Audience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)];
+            //    options.SigningCredentials = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256);
+            //});
 
+            services.AddAuthentication(o =>
+            {
+                o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.Audience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)];
+                //options.ClaimsIssuer = "claims issuer";
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)],
+                    IssuerSigningKey = _signingKey
+                };
+            });
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             // *If* you need access to generic IConfiguration this is **required**
             services.AddSingleton(Configuration);
@@ -123,6 +138,7 @@ namespace UserAppService
                 });
             }
 
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             #endregion
 
             return services.BuildServiceProvider(false);
