@@ -19,6 +19,7 @@ using System;
 using UserAppService.Service;
 using Autofac;
 using Microsoft.AspNetCore.Authentication.Facebook;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace UserAppService
 {
@@ -95,12 +96,22 @@ namespace UserAppService
             var jwtAppSettingOptions = Configuration.GetSection(nameof(JwtIssuerOptions));
 
             // Configure JwtIssuerOptions
-            services.Configure<JwtIssuerOptions>(options =>
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
             {
-                options.Issuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
+                options.ClaimsIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
                 options.Audience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)];
-                options.SigningCredentials = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256);
+                //options.SigningCredentials = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256);
             });
+
+            //    services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            //.AddJwtBearer(options =>
+            //{
+            //    options.Audience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)];
+            //    options.TokenValidationParameters = ;
+            //    //options.Authority = "http://localhost:5000/";
+            //});
+
+
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             // *If* you need access to generic IConfiguration this is **required**
