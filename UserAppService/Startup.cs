@@ -62,7 +62,7 @@ namespace UserAppService
                 connectionString = connectionString.Replace("%CONTENTROOTPATH%", _contentRootPath);
             }
 
-            services.AddDbContext<ApplicationDbContext>(options =>options.UseSqlServer(connectionString));
+            services.AddDbContext<ApplicationDbContext>(options =>options.UseSqlite(connectionString));
 
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();
