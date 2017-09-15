@@ -81,6 +81,11 @@ namespace UserAppService.Context
         //    }
         //}
 
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSqlite("Filename=UserManagement.db");
+        }
+
     }
 
     public static class DbContextExtensions
@@ -102,4 +107,6 @@ namespace UserAppService.Context
             
         }
     }
+
+    
 }
