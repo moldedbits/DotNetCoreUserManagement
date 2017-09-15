@@ -18,6 +18,7 @@ using UserAppService.Context;
 using System;
 using UserAppService.Service;
 using Autofac;
+using Microsoft.AspNetCore.Authentication.Facebook;
 
 namespace UserAppService
 {
@@ -105,6 +106,22 @@ namespace UserAppService
             // *If* you need access to generic IConfiguration this is **required**
             services.AddSingleton(Configuration);
             // Add Autofac
+
+            #region Google Authentication
+
+            var googleClientId = Configuration["AppSettings:GoogleClientId"];
+            var googleClientSecret = Configuration["AppSettings:GoogleClientSecret"];
+
+            if (googleClientId != null && googleClientSecret != null)
+            {
+                services.AddAuthentication().AddGoogle(googleOptions =>
+                {
+                    googleOptions.ClientId = googleClientId;
+                    googleOptions.ClientSecret = googleClientSecret;
+                });
+            }
+
+            #endregion
 
             return services.BuildServiceProvider(false);
         }
