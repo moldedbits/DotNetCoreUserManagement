@@ -238,7 +238,7 @@
     <value>Login through Gmail Account has been succesfull.</value>
   </data>
   <data name="GoogleRequestUri" xml:space="preserve">
-    <value>https://www.googleapis.com/oauth2/v1/tokeninfo?id_token={0}</value>
+    <value>https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={0}</value>
   </data>
   <data name="UserAccountNotExists" xml:space="preserve">
     <value>User does not have an account, prompt the user to create an account (call register api).</value>

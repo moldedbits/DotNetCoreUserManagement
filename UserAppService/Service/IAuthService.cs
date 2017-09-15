@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using UserAppService.Dto;
+using UserAppService.InputModel;
+using UserAppService.OutputModels;
 
 namespace UserAppService.Service
 {
@@ -73,7 +75,7 @@ namespace UserAppService.Service
 
         //#region External Login
 
-        //GoogleExternalLoginResult GoogleLogin(GoogleLoginInputModel inputModel);
+        GoogleExternalLoginResult GoogleLogin(GoogleLoginInputModel inputModel);
 
         //FacebookExternalLoginResult FacebookLogin(FacebookLoginInputModel inputModel);
 

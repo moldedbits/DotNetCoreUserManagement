@@ -1,32 +1,32 @@
-﻿//using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 //using UserAppService.ExternalLogin;
-//using UserAppService.InputModel;
-//using UserAppService.OutputModels;
+using UserAppService.InputModel;
+using UserAppService.OutputModels;
 
-//namespace UserAppService.Service.UserLoginAppServiceLayer
-//{
-//    public interface IUserLoginService
-//    {
-//        void GetApplicationUserManager(ApplicationUserManager userManager);
+namespace UserAppService.Service.UserLoginAppServiceLayer
+{
+    public interface IUserLoginService
+    {
+        //        void GetApplicationUserManager(ApplicationUserManager userManager);
 
-//        ChallengeResult ExternalLogin(ExternalLoginInputModel model);
+        //        ChallengeResult ExternalLogin(ExternalLoginInputModel model);
 
-//        ChallengeResult LinkLogin(LinkLoginInputModel model);
+        //        ChallengeResult LinkLogin(LinkLoginInputModel model);
 
-//        Task<BoolMethodResult> LinkLoginCallback();
+        //        Task<BoolMethodResult> LinkLoginCallback();
 
-//        Task<BoolMethodResult> ExternalLoginCallback();
+        //        Task<BoolMethodResult> ExternalLoginCallback();
 
-//        BoolMethodResult LogOff();
+        //        BoolMethodResult LogOff();
 
-//        Task<BoolMethodResult> ExternalLoginConfirmation(ExternalLoginConfirmationInputModel model);
+        //        Task<BoolMethodResult> ExternalLoginConfirmation(ExternalLoginConfirmationInputModel model);
 
-//        #region External Login
+        #region External Login
 
-//        GoogleExternalLoginResult GoogleLogin(GoogleLoginInputModel inputModel);
+        GoogleExternalLoginResult GoogleLogin(GoogleLoginInputModel inputModel);
 
 //        FacebookExternalLoginResult FacebookLogin(FacebookLoginInputModel inputModel);
 
-//        #endregion
-//    }
-//}
+        #endregion
+    }
+}

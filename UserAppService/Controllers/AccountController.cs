@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using UserAppService.Models;
 using UserAppService.Models.AccountViewModels;
 using UserAppService.Services;
+using System.Linq;
 
 namespace UserAppService.Controllers
 {
@@ -270,6 +271,11 @@ namespace UserAppService.Controllers
             if (info == null)
             {
                 return RedirectToAction(nameof(Login));
+            }
+
+            if (info.LoginProvider == "Google")
+            {
+                var accesstoken = info.AuthenticationTokens.Single(x => x.Name == "access_token").Value;
             }
 
             // Sign in the user with this external login provider if the user already has a login.

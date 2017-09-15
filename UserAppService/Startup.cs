@@ -19,6 +19,7 @@ using System;
 using UserAppService.Service;
 using Autofac;
 using Microsoft.AspNetCore.Authentication.Facebook;
+using Microsoft.AspNetCore.Authentication.Google;
 
 namespace UserAppService
 {
@@ -118,6 +119,7 @@ namespace UserAppService
                 {
                     googleOptions.ClientId = googleClientId;
                     googleOptions.ClientSecret = googleClientSecret;
+                    googleOptions.SaveTokens = true;
                 });
             }
 
@@ -165,6 +167,14 @@ namespace UserAppService
                 //    AppSecret = FacebookAppSecret
                 //});
             }
+
+            // This approach is deprecated in .net core 2.0 but runs in core 1.0
+            //app.UseGoogleAuthentication(new GoogleOptions
+            //{
+            //    ClientId = Configuration["AppSettings:GoogleClientId"],
+            //    ClientSecret = Configuration["AppSettings:GoogleClientSecret"],
+            //    SaveTokens = true
+            //});
 
             app.UseAuthentication();
 
